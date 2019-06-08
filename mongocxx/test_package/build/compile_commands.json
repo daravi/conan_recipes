@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/puya/dev/conan_packages/mongocxx/test_package/build",
+  "command": "/opt/rh/devtoolset-7/root/usr/bin/c++   -I/opt/conan/mongo-cxx-driver/3.4.0/3rdparty/stable/package/630178ce9246ca637207cc9ee3fb5b1fff2fd7f9/include -I/opt/conan/mongo-cxx-driver/3.4.0/3rdparty/stable/package/630178ce9246ca637207cc9ee3fb5b1fff2fd7f9/include/bsoncxx/third_party/mnmlstc -I/opt/conan/mongo-c-driver/1.14.0/3rdparty/stable/package/f8820d2563e0bf223e847aca2aee2e733a550c9a/include -I/opt/conan/OpenSSL/1.1.0g/3rdparty/stable/package/457c23490bc406d35982530a76eb75864ddba3b1/include -I/opt/conan/Zlib/1.2.11/3rdparty/stable/package/9bfdcfa2bb925892ecf42e2a018a3f3529826676/include       -DBSON_STATIC=1 -DMONGOC_STATIC=1 -o CMakeFiles/test_package.dir/test_package.cpp.o -c /home/puya/dev/conan_packages/mongocxx/test_package/test_package.cpp",
+  "file": "/home/puya/dev/conan_packages/mongocxx/test_package/test_package.cpp"
+}
+]

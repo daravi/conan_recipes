@@ -1,0 +1,3 @@
+/home/puya/dev/conan_packages/mongocxx/test_package/build/a07b4149b10120b21c6db24e126e0e6fa8a3b30b/CMakeFiles/rebuild_cache.dir
+/home/puya/dev/conan_packages/mongocxx/test_package/build/a07b4149b10120b21c6db24e126e0e6fa8a3b30b/CMakeFiles/test_package.dir
+/home/puya/dev/conan_packages/mongocxx/test_package/build/a07b4149b10120b21c6db24e126e0e6fa8a3b30b/CMakeFiles/edit_cache.dir

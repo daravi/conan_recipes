@@ -9,24 +9,25 @@ class MongoCDriverConan(ConanFile):
 	version = "1.14.0"
 	description = "A high-performance MongoDB driver for C"
 	topics = ("libmongoc", "mongodb", "db")
-	homepage = "https://github.com/mongodb/{0}".format(name)
 	license = "Apache-2.0"
+	homepage = "https://github.com/mongodb/{0}".format(name)
 	url = "https://github.com/mongodb/{0}/releases/download/{1}/{0}-{1}.tar.gz".format(name, version)
-	exports_sources = ["Find*.cmake", "header_path.patch", "CMakeLists.txt"]
-	generators = "cmake"
-
+	
 	settings = "os", "compiler", "arch", "build_type"
+	generators = "cmake"
+	exports_sources = ["Find*.cmake", "CMakeLists.txt"]
 	options = {"shared": [True, False], "fPIC": [True, False]}
-	default_options = {'shared': False, 'fPIC': True}
+	default_options = {"shared": False, "fPIC": True}
 
 	_source_subfolder = "source_subfolder"
 	_build_subfolder = "build_subfolder"
 
-	requires = "Zlib/1.2.11@3rdparty/stable"
+	requires = "zlib/1.2.11@conan/stable"
 
 	def configure(self):
-		# Because this is pure C
+		# Because this is pure C and does not depend on any C++ standard library
 		del self.settings.compiler.libcxx
+		del self.settings.compiler.cppstd
 
 	def config_options(self):
 		if self.settings.os == "Windows":
@@ -34,13 +35,12 @@ class MongoCDriverConan(ConanFile):
 
 	def requirements(self):
 		if not tools.os_info.is_macos and not tools.os_info.is_windows:
-			self.requires.add("OpenSSL/1.1.0g@3rdparty/stable")
+			self.requires.add("OpenSSL/1.1.1a@conan/stable")
 
 	def source(self):
 		tools.get(self.url)
 		extracted_dir = self.name + "-" + self.version
 		os.rename(extracted_dir, self._source_subfolder)
-		tools.patch(base_path=self._source_subfolder, patch_file="header_path.patch")
 
 	def _configure_cmake(self):
 		cmake = CMake(self)
@@ -57,7 +57,13 @@ class MongoCDriverConan(ConanFile):
 
 	def build(self):
 		cmake = self._configure_cmake()
-		cmake.build()
+		if self.options.shared:
+			cmake.build(target="bson_shared")
+			cmake.build(target="mongoc_shared")
+		else:
+			cmake.build(target="bson_static")
+			cmake.build(target="mongoc_static")
+		# cmake.build()
 
 	def package(self):
 		self.copy(pattern="COPYING*", dst="licenses", src=self._source_subfolder)
@@ -68,8 +74,7 @@ class MongoCDriverConan(ConanFile):
 		cmake.install()
 
 	def package_info(self):
-		self.cpp_info.libs = ['mongoc-1.0', 'bson-1.0'] if self.options.shared \
-			else ['mongoc-static-1.0', 'bson-static-1.0']
+		self.cpp_info.libs = ['mongoc-1.0', 'bson-1.0', 'mongoc-static-1.0', 'bson-static-1.0']
 
 		if tools.os_info.is_macos:
 			self.cpp_info.exelinkflags = [

@@ -33,9 +33,8 @@ class MongoCxxConan(ConanFile):
         tools.get(self.url)
         extracted_dir = self.name + "-" + self.version
         os.rename(extracted_dir, self._source_subfolder)
-
-    def build(self):
-        cmake_file = self._source_subfolder + "/CMakeLists.txt"
+    
+    def _configure_cmake(self):
         cmake = CMake(self)
         # If C++17 not available:
         # if self.settings.compiler == 'Visual Studio':
@@ -46,48 +45,57 @@ class MongoCxxConan(ConanFile):
         cmake.definitions["CMAKE_CXX_STANDARD"] = 17
         cmake.definitions["BSONCXX_POLY_USE_STD"] = 1
         cmake.definitions["BUILD_TESTING"] = 0
-        cmake.configure(source_dir=self._source_subfolder)
+
+        cmake.configure(build_folder=self._build_subfolder)
+
+        return cmake
+
+    def build(self):
+        cmake = self._configure_cmake()
         cmake.build(target="bsoncxx")
         cmake.build(target="mongocxx")
         cmake.build(target="mongocxx_mocked")
-
-    # def purge(self, dir, pattern):
-    #     for f in os.listdir(dir):
-    #         if re.search(pattern, f):
-    #             os.remove(os.path.join(dir, f))
+        # cmake.build()
 
     def package(self):
         self.copy(pattern="LICENSE*", dst="licenses", src=self._source_subfolder)
-        self.copy(pattern="*.hpp", dst="include/bsoncxx", src=self._source_subfolder + "/src/bsoncxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/mongocxx", src=self._source_subfolder + "/src/mongocxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/bsoncxx", src="src/bsoncxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
 
-        try:
-            os.rename("lib/libmongocxx-static.a", "lib/libmongocxx.a")
-        except:
-            pass
-        try:
-            os.rename("lib/libbsoncxx-static.a", "lib/libbsoncxx.a")
-        except:
-            pass
-        try:
-            os.rename("lib/libmongocxx-static.lib", "lib/libmongocxx.lib")
-        except:
-            pass
-        try:
-            os.rename("lib/libbsoncxx-static.lib", "lib/libbsoncxx.lib")
-        except:
-            pass
-        self.copy(pattern="lib*cxx.lib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="lib*cxx.a", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="lib*cxx.so*", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="lib*cxx.dylib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="lib*cxx._noabi.dylib", dst="lib", src="lib", keep_path=False)
+        cmake = self._configure_cmake()
+        cmake.install()
+
+        # self.copy(pattern="*.hpp", dst="include/bsoncxx", src=self._source_subfolder + "/src/bsoncxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/mongocxx", src=self._source_subfolder + "/src/mongocxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/bsoncxx", src="src/bsoncxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
+
+        # try:
+        #     os.rename("lib/libmongocxx-static.a", "lib/libmongocxx.a")
+        # except:
+        #     pass
+        # try:
+        #     os.rename("lib/libbsoncxx-static.a", "lib/libbsoncxx.a")
+        # except:
+        #     pass
+        # try:
+        #     os.rename("lib/libmongocxx-static.lib", "lib/libmongocxx.lib")
+        # except:
+        #     pass
+        # try:
+        #     os.rename("lib/libbsoncxx-static.lib", "lib/libbsoncxx.lib")
+        # except:
+        #     pass
+        # self.copy(pattern="lib*cxx.lib", dst="lib", src="lib", keep_path=False)
+        # self.copy(pattern="lib*cxx.a", dst="lib", src="lib", keep_path=False)
+        # self.copy(pattern="lib*cxx.so*", dst="lib", src="lib", keep_path=False)
+        # self.copy(pattern="lib*cxx.dylib", dst="lib", src="lib", keep_path=False)
+        # self.copy(pattern="lib*cxx._noabi.dylib", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ['mongocxx', 'bsoncxx']
-        self.cpp_info.includedirs.append('include/bsoncxx/third_party/mnmlstc')
+        if self.options.shared:
+            self.cpp_info.libs = ['libmongocxx', 'libbsoncxx']
+        else:
+            self.cpp_info.libs = ['libmongocxx-static', 'libbsoncxx-static']
+        # self.cpp_info.includedirs.append('include/bsoncxx/third_party/mnmlstc')
 
 

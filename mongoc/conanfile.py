@@ -22,7 +22,8 @@ class MongoCDriverConan(ConanFile):
 	_source_subfolder = "source_subfolder"
 	_build_subfolder = "build_subfolder"
 
-	requires = "Zlib/1.2.11@3rdparty/stable"
+	# requires = "Zlib/1.2.11@3rdparty/stable"
+	requires = "zlib/1.2.11@conan/stable"
 
 	def configure(self):
 		# Because this is pure C
@@ -34,7 +35,8 @@ class MongoCDriverConan(ConanFile):
 
 	def requirements(self):
 		if not tools.os_info.is_macos and not tools.os_info.is_windows:
-			self.requires.add("OpenSSL/1.0.2o@3rdparty/stable")
+			# self.requires.add("OpenSSL/1.0.2o@3rdparty/stable")
+			self.requires.add("OpenSSL/1.0.2o@conan/stable")
 
 	def source(self):
 		tools.get(self.url)

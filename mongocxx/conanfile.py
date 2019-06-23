@@ -9,75 +9,51 @@ import re
 class MongoCxxConan(ConanFile):
     name = "mongo-cxx-driver"
     version = "3.4.0"
+    commit_sha = "131fa1a67acd45c0eebcbdcfee42b212af8d2e80"
+    git_username = "mongodb"
     description = "C++ Driver for MongoDB"
     topics = ("libmongocxx", "mongodb", "db")
     homepage = "https://github.com/mongodb/{0}".format(name)
     license = "Apache-2.0"
     url = "https://github.com/mongodb/{0}/archive/r{1}.tar.gz".format(name, version)
+    commit_url = "https://github.com/{0}/{1}/archive/{2}.zip".format(git_username, name, commit_sha)
     generators = "cmake"
 
     settings =  "os", "compiler", "arch", "build_type"
     options = {"shared": [True, False]}
     default_options = "shared=False"
 
-    requires = 'mongo-c-driver/1.14.0@3rdparty/stable'
+    requires = 'mongo-c-driver/1.14.0@test/test'
 
     def source(self):
-        tools.get(self.url)
-        extracted_dir = "mongo-cxx-driver-r{0}".format(self.version)
+        self.run("git clone https://github.com/mongodb/mongo-cxx-driver.git")
+        self.run("cd {0} && git checkout {1}".format(self.name, self.commit_sha))
+        self.run("cd ..")
+        extracted_dir = self.name
+        # tools.get(self.commit_url)
+        # extracted_dir = "{0}-{1}".format(self.name, self.commit_sha)
         os.rename(extracted_dir, "sources")
 
     def build(self):
         conan_magic_lines='''project(MONGO_CXX_DRIVER LANGUAGES CXX)
         include(../conanbuildinfo.cmake)
         conan_basic_setup()
-        # include(CheckCXXCompilerFlag)
-        # check_cxx_compiler_flag(-std=c++17 HAVE_FLAG_STD_CXX17)
-        # if(HAVE_FLAG_STD_CXX17)
-        #     message(STATUS USING C++17!)
-        #     set(CMAKE_CXX_STANDARD 17)
-        #     set(BSONCXX_POLY_USE_MNMLSTC 0)
-        #     set(BSONCXX_POLY_USE_STD_EXPERIMENTAL 0)
-        #     set(BSONCXX_POLY_USE_BOOST 0)
-        #     set(BSONCXX_POLY_USE_STD 1)
-        # else()
-        #     check_cxx_compiler_flag(-std=c++14 HAVE_FLAG_STD_CXX14)
-        #     if(HAVE_FLAG_STD_CXX14)
-        #         message(STATUS USING C++14!)
-        #         set(CMAKE_CXX_STANDARD 14)
-        #         set(BSONCXX_POLY_USE_MNMLSTC 0)
-        #         set(BSONCXX_POLY_USE_STD_EXPERIMENTAL 1)
-        #         set(BSONCXX_POLY_USE_BOOST 0)
-        #         set(BSONCXX_POLY_USE_STD 0)
-        #     else()
-        #         message(FATAL_ERROR "MongoCXX requires at least C++14")
-        #     endif()
-        # endif()
-        # set(CMAKE_CXX_STANDARD_REQUIRED ON)
-        # set(CMAKE_CXX_EXTENSIONS OFF)
-        set(BSONCXX_POLY_USE_MNMLSTC 1)
-        set(BSONCXX_POLY_USE_STD_EXPERIMENTAL 0)
-        set(BSONCXX_POLY_USE_BOOST 0)
-        set(BSONCXX_POLY_USE_STD 0)
-
-        set(CMAKE_CXX_STANDARD 17)
-        set(CMAKE_CXX_STANDARD_REQUIRED ON)
         '''
         
         cmake_file = "sources/CMakeLists.txt"
+        # TODO PUYA: Change this to use a wrapper instead
         tools.replace_in_file(cmake_file, "project(MONGO_CXX_DRIVER LANGUAGES CXX)", conan_magic_lines)
-        tools.replace_in_file(cmake_file, "enable_testing()", "")
+        # tools.replace_in_file(cmake_file, "enable_testing()", "")
 
         cmake = CMake(self)
+        # TODO PUYA: Add check to see which STD is available (use BSONCXX_POLY_USE_MNMLSTC if necessary)
         # if self.settings.compiler == 'Visual Studio':
-        # 	cmake.definitions["BSONCXX_POLY_USE_BOOST"] = 1 # required for Windows.
+        # 	cmake.definitions["BSONCXX_POLY_USE_BOOST"] = 1 # required for Windows (if C++17 not available)
         cmake.definitions["BUILD_TESTING"] = 0
         cmake.definitions["CMAKE_CXX_STANDARD"] = 17
         cmake.definitions["CMAKE_CXX_STANDARD_REQUIRED"] = 1
-        cmake.definitions["BSONCXX_POLY_USE_MNMLSTC"] = 1
-        cmake.definitions["BSONCXX_POLY_USE_STD_EXPERIMENTAL"] = 0
-        cmake.definitions["BSONCXX_POLY_USE_BOOST"] = 0
-        cmake.definitions["BSONCXX_POLY_USE_STD"] = 0
+        cmake.definitions["BSONCXX_POLY_USE_STD"] = 1
+        cmake.definitions["BUILD_VERSION"] = "3.4.0-"
         cmake.configure(source_dir="sources")
 
         cmake.build()

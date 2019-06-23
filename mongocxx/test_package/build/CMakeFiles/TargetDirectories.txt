@@ -1,3 +1,0 @@
-/home/puya/dev/conan_packages/mongocxx/test_package/build/CMakeFiles/rebuild_cache.dir
-/home/puya/dev/conan_packages/mongocxx/test_package/build/CMakeFiles/test_package.dir
-/home/puya/dev/conan_packages/mongocxx/test_package/build/CMakeFiles/edit_cache.dir

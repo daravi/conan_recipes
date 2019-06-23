@@ -1,7 +1,0 @@
-[
-{
-  "directory": "/home/puya/dev/conan_packages/mongocxx/test_package/build/a07b4149b10120b21c6db24e126e0e6fa8a3b30b",
-  "command": "/opt/rh/devtoolset-8/root/usr/bin/c++  -D_GLIBCXX_USE_CXX11_ABI=1 -I/opt/conan/mongo-cxx-driver/3.4.0/test/test/package/7548d4f41819bb5eb397737e35dc73506ed4bd46/include -I/opt/conan/mongo-cxx-driver/3.4.0/test/test/package/7548d4f41819bb5eb397737e35dc73506ed4bd46/include/bsoncxx/third_party/mnmlstc -I/opt/conan/mongo-c-driver/1.14.0/3rdparty/stable/package/87d2750040adc794143e7d6e37b4568791ade1f7/include -I/opt/conan/OpenSSL/1.0.2o/3rdparty/stable/package/ef08ccd50c6f5400f56db69de53accd3d5c218b5/include -I/opt/conan/Zlib/1.2.11/3rdparty/stable/package/960ea69bf75545e9a24b1e97328f5e1485952045/include    -m64 -O3 -DNDEBUG    -DBSON_STATIC=1 -DMONGOC_STATIC=1 -o CMakeFiles/test_package.dir/test_package.cpp.o -c /home/puya/dev/conan_packages/mongocxx/test_package/test_package.cpp",
-  "file": "/home/puya/dev/conan_packages/mongocxx/test_package/test_package.cpp"
-}
-]

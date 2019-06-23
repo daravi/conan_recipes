@@ -80,9 +80,11 @@ class MongoCxxConan(ConanFile):
         cmake.definitions["BSONCXX_POLY_USE_STD"] = 0
         cmake.configure(source_dir="sources")
 
-        cmake.build(target="bsoncxx")
-        cmake.build(target="mongocxx")
-        cmake.build(target="mongocxx_mocked")
+        cmake.build()
+
+        # cmake.build(target="bsoncxx")
+        # cmake.build(target="mongocxx")
+        # cmake.build(target="mongocxx_mocked")
 
     def purge(self, dir, pattern):
         for f in os.listdir(dir):
@@ -93,9 +95,12 @@ class MongoCxxConan(ConanFile):
         self.copy(pattern="LICENSE*", dst="licenses", src="sources")
         self.copy(pattern="*.hpp", dst="include/bsoncxx", src="sources/src/bsoncxx", keep_path=True)
         self.copy(pattern="*.hpp", dst="include/mongocxx", src="sources/src/mongocxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/bsoncxx", src="src/bsoncxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
+        self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
         self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
+        self.copy(pattern="*.hpp", dst="include/mongocxx/helpers", src="sources/src/third_party/catch/include", keep_path=False)
+        self.copy(pattern="*.hh", dst="include", src="src", keep_path=True)
+        self.copy(pattern="*.hh", dst="include", src="sources/src", keep_path=True)
 
         try:
             os.rename("lib/libmongocxx-static.a", "lib/libmongocxx.a")
@@ -118,6 +123,7 @@ class MongoCxxConan(ConanFile):
         self.copy(pattern="lib*cxx.so*", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="lib*cxx.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="lib*cxx._noabi.dylib", dst="lib", src="lib", keep_path=False)
+        self.copy(pattern="libmongocxx-mocked.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = ['mongocxx', 'bsoncxx']

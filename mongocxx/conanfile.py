@@ -24,14 +24,14 @@ class MongoCxxConan(ConanFile):
     _source_subfolder = "source_subfolder"
     _build_subfolder = "build_subfolder"
 
-    requires = 'mongo-c-driver/1.14.0@test/test'
+    requires = "mongo-c-driver/1.14.0@test2/test2"
 
     def source(self):
         # tools.get(self.url)
         # extracted_dir = "mongo-cxx-driver-r{0}".format(self.version)
         # os.rename(extracted_dir, "sources")
         tools.get(self.url)
-        extracted_dir = self.name + "-" + self.version
+        extracted_dir = self.name + "-r" + self.version
         os.rename(extracted_dir, self._source_subfolder)
     
     def _configure_cmake(self):
@@ -44,7 +44,9 @@ class MongoCxxConan(ConanFile):
         cmake.definitions["CMAKE_CXX_STANDARD_REQUIRED"] = 1
         cmake.definitions["CMAKE_CXX_STANDARD"] = 17
         cmake.definitions["BSONCXX_POLY_USE_STD"] = 1
+		# BSONCXX_POLY_USE_STD
         cmake.definitions["BUILD_TESTING"] = 0
+        cmake.definitions["BUILD_SHARED_LIBS"] = "OFF" if self.options.shared else "ON"
 
         cmake.configure(build_folder=self._build_subfolder)
 

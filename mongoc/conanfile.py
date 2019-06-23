@@ -74,7 +74,7 @@ class MongoCDriverConan(ConanFile):
 		cmake.install()
 
 	def package_info(self):
-		self.cpp_info.libs = ['mongoc-1.0', 'bson-1.0', 'mongoc-static-1.0', 'bson-static-1.0']
+		self.cpp_info.libs = ['libmongoc-1.0', 'libbson-1.0', 'libmongoc-static-1.0', 'libbson-static-1.0']
 
 		if tools.os_info.is_macos:
 			self.cpp_info.exelinkflags = [

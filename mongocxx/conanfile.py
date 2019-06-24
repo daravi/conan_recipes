@@ -26,12 +26,12 @@ class MongoCxxConan(ConanFile):
     requires = 'mongo-c-driver/1.14.0@test/test'
 
     def source(self):
-        self.run("git clone https://github.com/mongodb/mongo-cxx-driver.git")
-        self.run("cd {0} && git checkout {1}".format(self.name, self.commit_sha))
-        self.run("cd ..")
-        extracted_dir = self.name
-        # tools.get(self.commit_url)
-        # extracted_dir = "{0}-{1}".format(self.name, self.commit_sha)
+        # self.run("git clone https://github.com/mongodb/mongo-cxx-driver.git")
+        # self.run("cd {0} && git checkout {1}".format(self.name, self.commit_sha))
+        # self.run("cd ..")
+        # extracted_dir = self.name
+        tools.get(self.commit_url)
+        extracted_dir = "{0}-{1}".format(self.name, self.commit_sha)
         os.rename(extracted_dir, "sources")
 
     def build(self):
@@ -55,12 +55,13 @@ class MongoCxxConan(ConanFile):
         cmake.definitions["BSONCXX_POLY_USE_STD"] = 1
         cmake.definitions["BUILD_VERSION"] = "3.4.0-"
         cmake.configure(source_dir="sources")
+        # 3.4.0
 
-        cmake.build()
+        # cmake.build()
 
-        # cmake.build(target="bsoncxx")
-        # cmake.build(target="mongocxx")
-        # cmake.build(target="mongocxx_mocked")
+        cmake.build(target="bsoncxx_static")
+        cmake.build(target="mongocxx_static")
+        cmake.build(target="mongocxx_mocked")
 
     def purge(self, dir, pattern):
         for f in os.listdir(dir):
@@ -68,15 +69,19 @@ class MongoCxxConan(ConanFile):
                 os.remove(os.path.join(dir, f))
 
     def package(self):
-        self.copy(pattern="LICENSE*", dst="licenses", src="sources")
-        self.copy(pattern="*.hpp", dst="include/bsoncxx", src="sources/src/bsoncxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/mongocxx", src="sources/src/mongocxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
+        # self.copy(pattern="LICENSE*", dst="licenses", src="sources")
+        # self.copy(pattern="*.hpp", dst="include/bsoncxx", src="sources/src/bsoncxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include/mongocxx", src="sources/src/mongocxx", keep_path=True)
+        # self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
         # self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
-        self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
-        self.copy(pattern="*.hpp", dst="include/mongocxx/helpers", src="sources/src/third_party/catch/include", keep_path=False)
+        # self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
+        self.copy(pattern="helpers.hpp", dst="include/mongocxx", src="sources/src/third_party/catch/include", keep_path=False)
         self.copy(pattern="*.hh", dst="include", src="src", keep_path=True)
         self.copy(pattern="*.hh", dst="include", src="sources/src", keep_path=True)
+        self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
+        self.copy(pattern="*.hpp", dst="include", src="sources/src", keep_path=True)
+        self.copy(pattern="*.h", dst="include", src="src", keep_path=True)
+        self.copy(pattern="*.h", dst="include", src="sources/src", keep_path=True)
 
         try:
             os.rename("lib/libmongocxx-static.a", "lib/libmongocxx.a")

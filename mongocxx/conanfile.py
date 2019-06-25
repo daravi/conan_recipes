@@ -8,14 +8,14 @@ import re
 
 class MongoCxxConan(ConanFile):
     name = "mongo-cxx-driver"
-    version = "3.4.0"
+    version = "r3.4.0"
     commit_sha = "131fa1a67acd45c0eebcbdcfee42b212af8d2e80"
     git_username = "mongodb"
     description = "C++ Driver for MongoDB"
     topics = ("libmongocxx", "mongodb", "db")
-    homepage = "https://github.com/mongodb/{0}".format(name)
+    homepage = "https://github.com/{0}/{1}".format(git_username, name)
     license = "Apache-2.0"
-    url = "https://github.com/mongodb/{0}/archive/r{1}.tar.gz".format(name, version)
+    url = "https://github.com/{0}/{1}/archive/{2}.tar.gz".format(git_username, name, version)
     commit_url = "https://github.com/{0}/{1}/archive/{2}.zip".format(git_username, name, commit_sha)
     generators = "cmake"
 
@@ -23,13 +23,9 @@ class MongoCxxConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=False"
 
-    requires = 'mongo-c-driver/1.14.0@test/test'
+    requires = 'mongo-c-driver/1.14.0@3rdparty/stable'
 
     def source(self):
-        # self.run("git clone https://github.com/mongodb/mongo-cxx-driver.git")
-        # self.run("cd {0} && git checkout {1}".format(self.name, self.commit_sha))
-        # self.run("cd ..")
-        # extracted_dir = self.name
         tools.get(self.commit_url)
         extracted_dir = "{0}-{1}".format(self.name, self.commit_sha)
         os.rename(extracted_dir, "sources")
@@ -43,7 +39,7 @@ class MongoCxxConan(ConanFile):
         cmake_file = "sources/CMakeLists.txt"
         # TODO PUYA: Change this to use a wrapper instead
         tools.replace_in_file(cmake_file, "project(MONGO_CXX_DRIVER LANGUAGES CXX)", conan_magic_lines)
-        # tools.replace_in_file(cmake_file, "enable_testing()", "")
+        tools.replace_in_file(cmake_file, "enable_testing()", "")
 
         cmake = CMake(self)
         # TODO PUYA: Add check to see which STD is available (use BSONCXX_POLY_USE_MNMLSTC if necessary)
@@ -53,29 +49,16 @@ class MongoCxxConan(ConanFile):
         cmake.definitions["CMAKE_CXX_STANDARD"] = 17
         cmake.definitions["CMAKE_CXX_STANDARD_REQUIRED"] = 1
         cmake.definitions["BSONCXX_POLY_USE_STD"] = 1
-        cmake.definitions["BUILD_VERSION"] = "3.4.0-"
+        cmake.definitions["BUILD_VERSION"] = "3.4.0"
         cmake.configure(source_dir="sources")
-        # 3.4.0
 
         # cmake.build()
-
         cmake.build(target="bsoncxx_static")
         cmake.build(target="mongocxx_static")
-        cmake.build(target="mongocxx_mocked")
-
-    def purge(self, dir, pattern):
-        for f in os.listdir(dir):
-            if re.search(pattern, f):
-                os.remove(os.path.join(dir, f))
+        # cmake.build(target="mongocxx_mocked")
 
     def package(self):
-        # self.copy(pattern="LICENSE*", dst="licenses", src="sources")
-        # self.copy(pattern="*.hpp", dst="include/bsoncxx", src="sources/src/bsoncxx", keep_path=True)
-        # self.copy(pattern="*.hpp", dst="include/mongocxx", src="sources/src/mongocxx", keep_path=True)
-        # self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
-        # self.copy(pattern="*.hpp", dst="include/mongocxx", src="src/mongocxx", keep_path=True)
-        # self.copy(pattern="*.hpp", dst="include/bsoncxx/third_party/mnmlstc/core", src="src/bsoncxx/third_party/EP_mnmlstc_core-prefix/src/EP_mnmlstc_core/include/core", keep_path=False)
-        self.copy(pattern="helpers.hpp", dst="include/mongocxx", src="sources/src/third_party/catch/include", keep_path=False)
+        self.copy(pattern="LICENSE*", dst="licenses", src="sources")
         self.copy(pattern="*.hh", dst="include", src="src", keep_path=True)
         self.copy(pattern="*.hh", dst="include", src="sources/src", keep_path=True)
         self.copy(pattern="*.hpp", dst="include", src="src", keep_path=True)
@@ -104,10 +87,8 @@ class MongoCxxConan(ConanFile):
         self.copy(pattern="lib*cxx.so*", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="lib*cxx.dylib", dst="lib", src="lib", keep_path=False)
         self.copy(pattern="lib*cxx._noabi.dylib", dst="lib", src="lib", keep_path=False)
-        self.copy(pattern="libmongocxx-mocked.a", dst="lib", src="lib", keep_path=False)
 
     def package_info(self):
-        self.cpp_info.libs = ['mongocxx', 'bsoncxx']
-        self.cpp_info.includedirs.append('include/bsoncxx/third_party/mnmlstc')
+        self.cpp_info.libs = tools.collect_libs(self)
 
 

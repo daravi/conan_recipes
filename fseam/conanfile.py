@@ -10,7 +10,7 @@ import sys
 class FSeamConan(ConanFile):
     name = "FSeam"
     version = "v1.0.1"
-    commit_sha = "a1a41667c76489f64c93c9a979aad88d865ac768"
+    commit_sha = "2418501b2262714679f2e82762f96b4476fa1f06"
     git_username = "FreeYourSoul"
     description = "Cpp header only library to manage compile time mock class generated via Python script"
     topics = ("unit-test", "mocking")
@@ -50,10 +50,17 @@ class FSeamConan(ConanFile):
         extracted_dir = "{0}-{1}".format(self.name, self.commit_sha)
         os.rename(extracted_dir, self._source_subfolder)
 
-    def build(self): # why can't I change this to configure?
+    def _configure_cmake(self):
         cmake = CMake(self)
+        cmake.definitions["FSEAM_USE_CATCH2"] = False
+        cmake.definitions["FSEAM_USE_GTEST"] = True
         cmake.definitions["FSEAM_BUILD_TESTS"] = False
         cmake.configure(build_folder=self._build_subfolder)
+        return cmake
+    
+    def build(self):
+        cmake = self._configure_cmake()
+        cmake.build()
 
     def package(self):
         cmake_scripts_folder = self.deps_cpp_info["CMakeCommon"].rootpath + "/cmake-tools/FSeam"
@@ -63,6 +70,7 @@ class FSeamConan(ConanFile):
         self.copy(pattern=r'LICENSE', dst="licenses", src=self._source_subfolder, keep_path=False)
         self.copy(pattern=r'Versioner.hh', dst="include", src=(self._source_subfolder + "/FSeam"))
         self.copy(pattern=r'FSeam.hpp', dst="include", src=(self._source_subfolder + "/FSeam"))
+        # could also export FSEAM_GENERATOR_COMMMAND instead
         self.copy(pattern=r'*.py', dst=python_bin_folder, src=(self._source_subfolder + "/Generator"), keep_path=False, excludes=r'__init__.py')
 
     def package_id(self):

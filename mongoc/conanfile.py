@@ -6,7 +6,7 @@ import os
 
 class MongoCDriverConan(ConanFile):
 	name = "mongo-c-driver"
-	version = "1.14.0"
+	version = "1.16.0"
 	description = "A high-performance MongoDB driver for C"
 	topics = ("libmongoc", "mongodb", "db")
 	homepage = "https://github.com/mongodb/{0}".format(name)
@@ -50,6 +50,7 @@ class MongoCDriverConan(ConanFile):
 		cmake.definitions["ENABLE_BSON"] = "ON"
 		cmake.definitions["ENABLE_SASL"] = "OFF"
 		cmake.definitions["ENABLE_STATIC"] = "OFF" if self.options.shared else "ON"
+		cmake.definitions["ENABLE_EXTRA_ALIGNMENT"] = "OFF"
 
 		cmake.configure(build_folder=self._build_subfolder)
 

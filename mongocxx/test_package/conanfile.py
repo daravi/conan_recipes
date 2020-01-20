@@ -9,10 +9,12 @@ class TestPackageConan(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     generators = "cmake"
 
-    requires = ("mongo-cxx-driver/3.4.0@3rdparty/stable")
+    requires = ("mongo-cxx-driver/3.4.1-20200120+gitd8eb7d5794@test/test")
 
     def build(self):
         cmake = CMake(self)
+        cmake.definitions["CMAKE_CXX_STANDARD"] = 17
+        cmake.definitions["CMAKE_CXX_STANDARD_REQUIRED"] = 1
         cmake.configure()
         cmake.build()
 

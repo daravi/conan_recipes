@@ -51,6 +51,7 @@ class MongoCDriverConan(ConanFile):
 		cmake.definitions["ENABLE_SASL"] = "OFF"
 		cmake.definitions["ENABLE_STATIC"] = "OFF" if self.options.shared else "ON"
 		cmake.definitions["ENABLE_EXTRA_ALIGNMENT"] = "OFF"
+		cmake.definitions["ENABLE_SHM_COUNTERS"] = "OFF"
 
 		cmake.configure(build_folder=self._build_subfolder)
 
